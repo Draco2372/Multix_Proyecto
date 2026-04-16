@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multix | Acceso</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Diseño específico para la página de acceso */
+        .auth-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f2f5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .auth-card p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .auth-card input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .auth-card button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .auth-card button:hover {
+            background-color: #2980b9;
+        }
+
+        /* El recuadro de error dinámico */
+        #error-msg {
+            color: #e74c3c;
+            background-color: #fdeaea;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none; /* Oculto inicialmente */
+            border: 1px solid #fadbd8;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #3498db;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Bienvenido a Multix</h2>
+            <p class="subtitle">Ingresa tus datos para continuar</p>
+            
+            <form id="authForm">
+                <input type="email" id="email" placeholder="Correo electrónico" required>
+                <input type="password" id="password" placeholder="Contraseña" required>
+                <button type="submit">Entrar / Registrarse</button>
+                
+                <p id="error-msg"></p>
+            </form>
+
+            <a href="index.html" class="back-link">← Volver a la tienda</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdy3ap2pRjlO-aXHduS9cXkEemH-6UMFo",
+            authDomain: "multixproyect.firebaseapp.com",
+            projectId: "multixproyect",
+            storageBucket: "multixproyect.firebasestorage.app",
+            messagingSenderId: "250419500251",
+            appId: "1:250419500251:web:a74255a0e45f99152928fe",
+            measurementId: "G-JLKSEBJ11T"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const errorMsg = document.getElementById("error-msg");
+
+        document.getElementById("authForm").onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            const pass = document.getElementById("password").value;
+
+            errorMsg.style.display = "none";
+
+            try {
+                // Primero intentamos iniciar sesión
+                await signInWithEmailAndPassword(auth, email, pass);
+                window.location.href = "index.html"; // Redirigir al éxito
+            } catch (error) {
+                // Si el usuario no existe, intentamos registrarlo automáticamente
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+                    try {
+                        await createUserWithEmailAndPassword(auth, email, pass);
+                        alert("¡Cuenta creada y sesión iniciada!");
+                        window.location.href = "index.html";
+                    } catch (regError) {
+                        mostrarError(regError.code);
+                    }
+                } else {
+                    mostrarError(error.code);
+                }
+            }
+        };
+
+        function mostrarError(code) {
+            errorMsg.style.display = "block";
+            if (code === 'auth/weak-password') {
+                errorMsg.innerText = "La contraseña debe tener al menos 6 caracteres.";
+            } else if (code === 'auth/invalid-email') {
+                errorMsg.innerText = "El formato del correo es inválido.";
+            } else if (code === 'auth/wrong-password') {
+                errorMsg.innerText = "Contraseña incorrecta.";
+            } else {
+                errorMsg.innerText = "Error en el acceso. Revisa tus datos.";
+            }
+        }
+    </script>
+</body>
+</html>

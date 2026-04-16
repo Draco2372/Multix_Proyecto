@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finalizar Compra | Multix</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            display: block;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .checkout-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .resumen-producto {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid #edf2f7;
+        }
+        .resumen-producto img { 
+            width: 100px; 
+            height: 100px;
+            object-fit: contain;
+            margin-right: 20px; 
+        }
+        .form-pago h3 { margin: 25px 0 15px 0; color: #2c3e50; }
+        .form-pago input {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        .metodo-unico {
+            padding: 15px;
+            border: 2px solid #3498db;
+            background: #ebf5fb;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .btn-finalizar {
+            width: 100%;
+            padding: 16px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #error-pago {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            animation: fadeIn 0.3s;
+        }
+        #exito-pago {
+            display: none;
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* ESTILOS DEL MODAL DE REGISTRO */
+        .modal-auth {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="authModal" class="modal-auth">
+        <div class="modal-content">
+            <h2 style="margin-top:0; color:#2c3e50;">¡Casi listo!</h2>
+            <p>Para procesar tu compra de forma segura, necesitas iniciar sesión o registrarte en Multix.</p>
+            <input type="email" id="authEmail" placeholder="Tu Correo" style="width:90%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px;">
+            <input type="password" id="authPass" placeholder="Tu Contraseña" style="width:90%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px;">
+            <button id="btnConfirmarAuth" class="btn-finalizar" style="background:#3498db;">Iniciar Sesión y Pagar</button>
+            <p style="font-size: 12px; color: #7f8c8d; margin-top: 15px;">¿No tienes cuenta? Se creará una automáticamente si los datos son nuevos.</p>
+            <button onclick="document.getElementById('authModal').style.display='none'" style="background:none; border:none; color:#e74c3c; cursor:pointer; margin-top:10px;">Cancelar</button>
+        </div>
+    </div>
+
+    <div class="checkout-container">
+        <a href="index.html" style="color:#7f8c8d; text-decoration:none; font-size:14px;">← Volver</a>
+        <h2 style="color: #2c3e50; margin: 20px 0;">Caja Segura</h2>
+
+        <div class="resumen-producto">
+            <img src="imagenes/bateria-multix-10k.jpg" alt="Batería Multix">
+            <div>
+                <h4 style="margin: 0;">Batería Portátil Multix 10k</h4>
+                <p style="color: #e67e22; font-weight: bold; font-size: 1.3rem; margin: 5px 0;">$19.990</p>
+            </div>
+        </div>
+
+        <form class="form-pago" id="paymentForm">
+            <h3>1. Datos de Envío</h3>
+            <input type="text" id="nombre" placeholder="Nombre completo" required>
+            <input type="text" id="direccion" placeholder="Calle y número" required>
+            <input type="text" id="ciudad" placeholder="Ciudad" required>
+            
+            <h3>2. Información de Pago</h3>
+            <div class="metodo-unico">💳 Pago Seguro con Tarjeta</div>
+            
+            <input type="text" id="num_tarjeta" placeholder="Número de tarjeta" maxlength="16" required>
+            <div style="display: flex; gap: 15px;">
+                <input type="text" id="expiracion" placeholder="MM/AA" maxlength="5" required style="flex: 1;">
+                <input type="password" id="cvv" placeholder="CVV" maxlength="3" required style="flex: 1;">
+            </div>
+            
+            <button type="submit" class="btn-finalizar">Confirmar Pago $19.990</button>
+
+            <div id="error-pago"></div>
+            <div id="exito-pago">¡Compra realizada! Redirigiendo...</div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdy3ap2pRjlO-aXHduS9cXkEemH-6UMFo",
+            authDomain: "multixproyect.firebaseapp.com",
+            projectId: "multixproyect",
+            storageBucket: "multixproyect.firebasestorage.app",
+            messagingSenderId: "250419500251",
+            appId: "1:250419500251:web:a74255a0e45f99152928fe"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userLogueado = null;
+        onAuthStateChanged(auth, (user) => { userLogueado = user; });
+
+        // Función para validar la tarjeta (Luhn)
+        function validarLuhn(n) {
+            let s = 0;
+            for (let i = 0; i < n.length; i++) {
+                let v = parseInt(n.substr(i, 1));
+                if (i % 2 === (n.length % 2)) { v *= 2; if (v > 9) v -= 9; }
+                s += v;
+            }
+            return (s % 10) === 0;
+        }
+
+        // Barra automática en MM/AA
+        document.getElementById('expiracion').addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+            e.target.value = v;
+        });
+
+        // BOTÓN DE LOGIN DENTRO DEL MODAL
+        document.getElementById('btnConfirmarAuth').onclick = async () => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPass').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                document.getElementById('authModal').style.display = 'none';
+            } catch {
+                try {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                    document.getElementById('authModal').style.display = 'none';
+                } catch { alert("Error en los datos de acceso."); }
+            }
+        };
+
+        // EVENTO PRINCIPAL DEL FORMULARIO
+        document.getElementById('paymentForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const errorDiv = document.getElementById('error-pago');
+            errorDiv.style.display = 'none';
+
+            // --- PASO 1: ¿ESTÁ LOGUEADO? ---
+            if (!userLogueado) {
+                document.getElementById('authModal').style.display = 'block';
+                return; // Detiene el pago hasta que se loguee
+            }
+
+            // --- PASO 2: VALIDACIONES DE TARJETA ---
+            const tarjeta = document.getElementById('num_tarjeta').value;
+            if (!validarLuhn(tarjeta) || tarjeta.length < 15) {
+                errorDiv.innerText = "La tarjeta no es válida.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "pedidos"), {
+                    cliente: document.getElementById('nombre').value,
+                    email: userLogueado.email,
+                    monto: 19990,
+                    fecha: new Date().toLocaleString()
+                });
+                document.getElementById('exito-pago').style.display = 'block';
+                setTimeout(() => window.location.href = 'index.html', 2000);
+            } catch {
+                alert("Error al conectar con la base de datos.");
+            }
+        };
+    </script>
+</body>
+</html>
